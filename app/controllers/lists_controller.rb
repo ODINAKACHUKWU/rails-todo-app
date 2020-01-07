@@ -1,17 +1,17 @@
 class ListsController < ApplicationController
   before_action :set_list, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate
 
   # GET /lists
   # GET /lists.json
   def index
-    @lists = List.all
+    @lists = current_user.lists
     @list = List.new
   end
 
   # GET /lists/1
   # GET /lists/1.json
-  def show
-  end
+  def show; end
 
   # GET /lists/new
   def new
@@ -19,8 +19,7 @@ class ListsController < ApplicationController
   end
 
   # GET /lists/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /lists
   # POST /lists.json
@@ -29,7 +28,7 @@ class ListsController < ApplicationController
 
     respond_to do |format|
       if @list.save
-        format.html { redirect_to root_url, notice: 'List was successfully created.' }
+        format.html { redirect_to lists_path, notice: "List was successfully created." }
         format.json { render :show, status: :created, location: @list }
       else
         format.html { render :new }
@@ -43,7 +42,7 @@ class ListsController < ApplicationController
   def update
     respond_to do |format|
       if @list.update(list_params)
-        format.html { redirect_to root_url, notice: 'List was successfully updated.' }
+        format.html { redirect_to lists_path, notice: "List was successfully updated." }
         format.json { render :show, status: :ok, location: @list }
       else
         format.html { render :edit }
@@ -57,19 +56,20 @@ class ListsController < ApplicationController
   def destroy
     @list.destroy
     respond_to do |format|
-      format.html { redirect_to root_url, notice: 'List was successfully deleted.' }
+      format.html { redirect_to lists_path, notice: "List was successfully deleted." }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_list
-      @list = List.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def list_params
-      params.require(:list).permit(:description, :completed)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_list
+    @list = List.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def list_params
+    params.require(:list).permit(:description, :completed).merge(user_id: current_user.id)
+  end
 end
